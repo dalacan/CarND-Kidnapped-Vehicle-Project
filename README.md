@@ -1,8 +1,7 @@
-# Overview
-This repository contains all the code needed to complete the final project for the Localization course in Udacity's Self-Driving Car Nanodegree.
+# Particle Filter
 
-#### Submission
-All you will need to submit is your `src` directory. You should probably do a `git pull` before submitting to verify that your project passes the most up-to-date version of the grading code (there are some parameters in `src/main.cpp` which govern the requirements on accuracy and run time).
+## Overview
+This repository contains coded solution, a Particle Filter, for the Localization course in Udacity's Self-Driving Car Nanodegree.
 
 ## Project Introduction
 Your robot has been kidnapped and transported to a new location! Luckily it has a map of this location, a (noisy) GPS estimate of its initial location, and lots of (noisy) sensor and control data.
@@ -129,15 +128,46 @@ You can find the inputs to the particle filter in the `data` directory.
 
 > * Map data provided by 3D Mapping Solutions GmbH.
 
-## Success Criteria
-If your particle filter passes the current grading code in the simulator (you can make sure you have the current version at any time by doing a `git pull`), then you should pass!
+## Particle Filter function overview
 
-The things the grading code is looking for are:
+### ParticleFilter::init()
+The initialization function initializes the required number of particles to the first gps position with random gaussian noise.
+
+### ParticleFilter::prediction()
+The prediction function updates the particle position based on the measurements (velocity and heading).
+
+### ParticleFilter::dataAssociation()
+The data association function finds the closest landmark to a specific observation for a given list of observations and landmarks.
+
+### ParticleFilter::updateWeights()
+The update weights function performs the following for each particle:
+* Transforms the observation x, y coordinates from car coordinates to map coordinates relative to the particle.
+* Filters the landmarks within sensor range of the particle
+* For each observation, finds the closest landmark
+* For each observation calculate the probabilistic weight using the multivariate probability function
+* Calculate the weight for each particle by multiplying all the weight for each observation
+
+### ParticleFilter::resample()
+The resampling function to "filters out" particles with smaller weights and re-samples particles with higher weights. This is implemented using the discrete distribution function.
+
+## Tests
+Once the particle filter program have been developed, I proceeded to test and optimize my implementation to the project criteria by varying the number of particles.
+
+Below are my results: 
+
+| Number of Particles | Elapse time | X error | Y error | Yaw error |
+| :---: | :---: | :---: | :---: | :---: |
+|   7   | 56.36 | 0.414 | 0.463 | 0.016 |
+|   10  | 60.28 | 0.383 | 0.309 | 0.011 |
+|   25  | 63.49 | 0.396 | 0.304 | 0.011 |
+|   50  | 64.71 | 0.313 | 0.284 | 0.009 |
+|  100  | 66.56 | 0.275 | 0.252 | 0.008 |
+|  200  | 74.49 | 0.259 | 0.237 | 0.007 |
+|  500  | 74.97 | 0.242 | 0.219 | 0.007 |
+|  750  | 88.48 | 0.238 | 0.211 | 0.006 |
+|  900  | 98.09 | 0.234 | 0.217 | 0.006 |
+
+### Conclusion
+Based on my test, I've choose a particle size of 100 as anything less than 100 yields a much higher error and anything higher than 100 yield a diminishing improvement to the errors and increasing the elapsed time.
 
 
-1. **Accuracy**: your particle filter should localize vehicle position and yaw to within the values specified in the parameters `max_translation_error` and `max_yaw_error` in `src/main.cpp`.
-
-2. **Performance**: your particle filter should complete execution within the time of 100 seconds.
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
